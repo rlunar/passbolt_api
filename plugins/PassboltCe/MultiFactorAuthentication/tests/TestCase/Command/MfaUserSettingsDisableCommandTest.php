@@ -64,6 +64,19 @@ class MfaUserSettingsDisableCommandTest extends AppTestCase
     }
 
     /**
+     * @Given the MFA plugin is disabled
+     * @When I run "passbolt MfaUserSettingsDisableCommand"
+     * @Then the command is not found
+     */
+    public function testMfaUserSettingsDisableCommandErrorPluginDisabled()
+    {
+        $this->disableFeaturePlugin(MultiFactorAuthenticationPlugin::class);
+        $this->exec('passbolt mfa_user_settings_disable --user-username john.doe@passbolt.com');
+        $this->assertExitError();
+        $this->assertErrorContains('Error: Unknown option `user-username`.');
+    }
+
+    /**
      * @Given I am root
      * @When I run "passbolt MfaUserSettingsDisableCommand"
      * @Then the command cannot be run.
@@ -83,7 +96,7 @@ class MfaUserSettingsDisableCommandTest extends AppTestCase
     public function testMfaUserSettingsDisableCommandAsNonRoot()
     {
         /** @var \App\Model\Entity\User $user */
-        $user = UserFactory::make()->user()->active()->persist();
+        $user = UserFactory::make()->user()->active()->withProfileName('Mfa', 'Test')->persist();
 
         // MFA org settings
         $orgSettings = ['providers' => [MfaSettings::PROVIDER_TOTP => true]];
@@ -117,6 +130,7 @@ class MfaUserSettingsDisableCommandTest extends AppTestCase
         // an email should be in the queue
         $this->assertEmailQueueCount(1);
         $this->assertEmailWithRecipientIsInQueue($user->get('username'));
+        $this->assertEmailInBatchContains(['Mfa']);
         $this->assertEmailInBatchContains(['Your multi-factor authentication settings were reset by you']);
     }
 
