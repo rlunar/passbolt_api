@@ -96,7 +96,7 @@ class MfaUserSettingsDisableCommandTest extends AppTestCase
     public function testMfaUserSettingsDisableCommandAsNonRoot()
     {
         /** @var \App\Model\Entity\User $user */
-        $user = UserFactory::make()->user()->active()->withProfileName('Mfa', 'Test')->persist();
+        $user = UserFactory::make()->user()->active()->withProfileName('John', 'Doe')->persist();
 
         // MFA org settings
         $orgSettings = ['providers' => [MfaSettings::PROVIDER_TOTP => true]];
@@ -129,9 +129,7 @@ class MfaUserSettingsDisableCommandTest extends AppTestCase
 
         // an email should be in the queue
         $this->assertEmailQueueCount(1);
-        $this->assertEmailWithRecipientIsInQueue($user->get('username'));
-        $this->assertEmailInBatchContains(['Mfa']);
-        $this->assertEmailInBatchContains(['Your multi-factor authentication settings were reset by you']);
+        $this->assertEmailInBatchContains([ 'John Doe', 'Your multi-factor authentication settings were reset by you', ], $user->get('username'));
     }
 
     /**
