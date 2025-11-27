@@ -397,6 +397,7 @@ trait UsersFindersTrait
                 'Users.id',
                 'Users.role_id',
                 'Users.username',
+                'Roles.id',
                 'Roles.name',
             ]);
     }

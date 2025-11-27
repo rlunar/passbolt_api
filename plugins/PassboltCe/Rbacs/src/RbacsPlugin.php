@@ -17,9 +17,12 @@ declare(strict_types=1);
 namespace Passbolt\Rbacs;
 
 use Cake\Core\BasePlugin;
+use Cake\Core\ContainerInterface;
 use Cake\Core\PluginApplicationInterface;
 use Cake\ORM\TableRegistry;
 use Passbolt\Rbacs\Event\CreateRbacsOnRoleCreateListener;
+use Passbolt\Rbacs\Service\ActionAccessControl\RbacsRoleActionAccessControlService;
+use Passbolt\Rbacs\Service\ActionAccessControl\RoleActionAccessControlServiceInterface;
 
 class RbacsPlugin extends BasePlugin
 {
@@ -32,6 +35,16 @@ class RbacsPlugin extends BasePlugin
         $this->registerListeners($app);
         $this->addAssociationsToActionsTable();
         $this->addAssociationsToRolesTable();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function services(ContainerInterface $container): void
+    {
+        $container
+            ->extend(RoleActionAccessControlServiceInterface::class)
+            ->setConcrete(RbacsRoleActionAccessControlService::class);
     }
 
     /**

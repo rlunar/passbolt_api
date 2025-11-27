@@ -191,4 +191,23 @@ class RbacsTableTest extends RbacsTestCase
         $this->assertNotEmpty($errors);
         $this->assertArrayHasKey('isControlFunctionAllowed', $errors['control_function']);
     }
+
+    public function testRbacsTable_isActionAllowedForRole(): void
+    {
+        $actionId = UuidFactory::uuid();
+        $roleId = UuidFactory::uuid();
+        $factory = RbacFactory::make();
+
+        $factory->persist();
+        $this->assertFalse($this->Rbacs->isActionAllowedForRole($roleId, $actionId));
+
+        $factory->setField('foreign_id', $actionId)->persist();
+        $this->assertFalse($this->Rbacs->isActionAllowedForRole($roleId, $actionId));
+
+        $factory->setField('foreign_model', Rbac::FOREIGN_MODEL_ACTION)->persist();
+        $this->assertFalse($this->Rbacs->isActionAllowedForRole($roleId, $actionId));
+
+        $factory->setField('role_id', $roleId)->persist();
+        $this->assertTrue($this->Rbacs->isActionAllowedForRole($roleId, $actionId));
+    }
 }

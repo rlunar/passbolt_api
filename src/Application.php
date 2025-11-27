@@ -70,6 +70,8 @@ use EmailQueue\Command\SenderCommand;
 use EmailQueue\EmailQueuePlugin;
 use Migrations\MigrationsPlugin;
 use Passbolt\EmailDigest\EmailDigestPlugin;
+use Passbolt\Rbacs\Service\ActionAccessControl\AdminOnlyRoleActionAccessControlService;
+use Passbolt\Rbacs\Service\ActionAccessControl\RoleActionAccessControlServiceInterface;
 use Passbolt\SelfRegistration\Service\DryRun\SelfRegistrationDefaultDryRunService;
 use Passbolt\SelfRegistration\Service\DryRun\SelfRegistrationDryRunServiceInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -299,6 +301,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
         $container->add(AbstractSecureCookieService::class, DefaultSecureCookieService::class);
         $container->add(Client::class);
         $container->add(BodyParserMiddleware::class);
+        $container->add(RoleActionAccessControlServiceInterface::class, AdminOnlyRoleActionAccessControlService::class);
         $container->addServiceProvider(new TestEmailServiceProvider());
         $container->addServiceProvider(new SetupServiceProvider());
         $container->addServiceProvider(new ResourceServiceProvider());

@@ -92,6 +92,22 @@ class UserComponent extends Component
     }
 
     /**
+     * @return \App\Model\Entity\Role
+     */
+    public function getRoleEntity(): Role
+    {
+        $role = $this->Authentication->getIdentity()->getOriginalData()['role'] ?? null;
+        if (is_null($role)) {
+            /** @var \App\Model\Table\RolesTable $Roles */
+            $Roles = TableRegistry::getTableLocator()->get('Roles');
+
+            return $Roles->find()->where(['name' => Role::GUEST])->first();
+        }
+
+        return $role;
+    }
+
+    /**
      * Return the role id if set or the id of Guest role
      * Return null if database role guest entry is not present (aka fresh)
      *
