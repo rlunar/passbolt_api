@@ -30,6 +30,7 @@ use App\Middleware\GpgAuthHeadersMiddleware;
 use App\Middleware\HttpProxyMiddleware;
 use App\Middleware\SessionAuthPreventDeletedOrDisabledUsersMiddleware;
 use App\Middleware\SessionPreventExtensionMiddleware;
+use App\Middleware\SetUserIdentityInRequestMiddleware;
 use App\Middleware\SslForceMiddleware;
 use App\Middleware\UuidParserMiddleware;
 use App\Middleware\ValidCookieNameMiddleware;
@@ -124,6 +125,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
                 SessionAuthPreventDeletedOrDisabledUsersMiddleware::class,
                 new AuthenticationMiddleware($this)
             )
+            ->insertAfter(AuthenticationMiddleware::class, SetUserIdentityInRequestMiddleware::class)
             ->add(new GpgAuthHeadersMiddleware())
             ->add($csrf)
             ->add(new HttpProxyMiddleware());

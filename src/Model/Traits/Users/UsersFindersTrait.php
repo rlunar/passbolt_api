@@ -382,6 +382,26 @@ trait UsersFindersTrait
     }
 
     /**
+     * Active, non-deleted and not disables users only with role contained
+     * This finder is used to retrieve the user from the user ID stored in session
+     *
+     * @param \Cake\ORM\Query\SelectQuery $query Query to carve.
+     * @return \Cake\ORM\Query\SelectQuery
+     */
+    public function findAuthIdentifier(SelectQuery $query): SelectQuery
+    {
+        return $query
+            ->find('activeNotDeletedContainRole')
+            ->find('notDisabled')
+            ->select([
+                'Users.id',
+                'Users.role_id',
+                'Users.username',
+                'Roles.name',
+            ]);
+    }
+
+    /**
      * Build the query that fetches a user by username
      * including role and profile
      *

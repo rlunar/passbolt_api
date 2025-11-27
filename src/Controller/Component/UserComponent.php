@@ -23,7 +23,6 @@ use Cake\Controller\Component;
 use Cake\Core\Configure;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\ORM\TableRegistry;
-use Cake\Utility\Hash;
 use donatj\UserAgent\UserAgentParser;
 use Exception;
 
@@ -163,21 +162,11 @@ class UserComponent extends Component
      */
     protected function getAuthenticatedUserProperty(string $property, ?string $default = null): ?string
     {
-        try {
-            // Get the user delivered by the authentication result.
-            $data = $this->Authentication->getResult()->getData() ?? null;
-            if (!isset($data)) {
-                $user = [];
-            } elseif (!isset($data['user'])) {
-                $user = $data;
-            } else {
-                $user = $data['user'];
-            }
-        } catch (Exception $e) {
-            $user = [];
-        } finally {
-            return Hash::get($user, $property, $default);
+        if ($this->Authentication->getIdentity() === null) {
+            return $default;
         }
+
+        return $this->Authentication->getIdentityData($property) ?? $default;
     }
 
     /**
