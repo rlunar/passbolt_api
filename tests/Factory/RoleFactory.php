@@ -28,7 +28,7 @@ use Faker\Generator;
  * @method \App\Model\Entity\Role getEntity()
  * @method \App\Model\Entity\Role[] getEntities()
  * @method static \App\Model\Entity\Role get($primaryKey, array $options = [])
- * @method static \App\Model\Entity\Role firstOrFail($conditions = null)
+ * @method \App\Model\Entity\Role firstOrFail($conditions = null)
  */
 class RoleFactory extends CakephpBaseFactory
 {
@@ -57,6 +57,11 @@ class RoleFactory extends CakephpBaseFactory
         $this->setDefaultData(function (Generator $faker) {
             return [
                 'name' => $faker->name(),
+                'description' => null,
+                'deleted' => null,
+                'created_by' => $faker->uuid(),
+                'modified_by' => $faker->uuid(),
+                'deleted_by' => null,
                 'created' => Chronos::now()->subDays($faker->randomNumber(4)),
                 'modified' => Chronos::now()->subDays($faker->randomNumber(4)),
             ];

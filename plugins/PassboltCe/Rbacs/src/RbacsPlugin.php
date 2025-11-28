@@ -19,6 +19,7 @@ namespace Passbolt\Rbacs;
 use Cake\Core\BasePlugin;
 use Cake\Core\PluginApplicationInterface;
 use Cake\ORM\TableRegistry;
+use Passbolt\Rbacs\Event\CreateRbacsOnRoleCreateListener;
 
 class RbacsPlugin extends BasePlugin
 {
@@ -41,9 +42,9 @@ class RbacsPlugin extends BasePlugin
      */
     public function registerListeners(PluginApplicationInterface $app): void
     {
-//        $app->getEventManager()
-//            ->on(new RbacsNotificationSettingsDefinition())
-//            ->on(new RbacsEmailRedactorPool());
+        $eventManager = $app->getEventManager();
+
+        $eventManager->on(new CreateRbacsOnRoleCreateListener());
     }
 
     /**

@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace App\Model\Table;
 
 use App\Model\Entity\Role;
+use App\Model\Rule\Role\MaximumNumberOfRolesAllowedRule;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
@@ -45,6 +46,10 @@ use InvalidArgumentException;
 class RolesTable extends Table
 {
     public const ALLOWED_ROLE_NAMES = [Role::GUEST, Role::USER, Role::ADMIN];
+
+    public const RESERVED_ROLE_NAMES = [Role::GUEST, Role::USER, Role::ADMIN, 'root'];
+
+    public const MAXIMUM_NO_OF_ROLES_ALLOWED = 5;
 
     /**
      * Initialize method
@@ -86,6 +91,11 @@ class RolesTable extends Table
             ->ascii('name', __('The name should be a valid ASCII string.'))
             ->requirePresence('name', 'create')
             ->notEmptyString('name')
+            ->maxLength('name', 50, __('The name should not be greater than 50 characters.'))
+            ->add('name', 'reservedRole', [
+                'rule' => [$this, 'isReservedRole'],
+                'message' => __('The name should not be reserved role.'),
+            ])
             ->add('name', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
 
         $validator
@@ -105,8 +115,24 @@ class RolesTable extends Table
     public function buildRules(RulesChecker $rules): RulesChecker
     {
         $rules->add($rules->isUnique(['name'], __('A role already exists for the given name.')));
+        $rules->add(new MaximumNumberOfRolesAllowedRule(), 'maximumNumberOfRolesAllowed', [
+            'errorField' => 'name',
+            'message' => __('Only maximum of {0} active roles are allowed.', self::MAXIMUM_NO_OF_ROLES_ALLOWED),
+        ]);
 
         return $rules;
+    }
+
+    /**
+     * Checks if given value is from reserved role.
+     *
+     * @param mixed $value Value to check.
+     * @param array $context Data.
+     * @return bool
+     */
+    public function isReservedRole(mixed $value, array $context): bool
+    {
+        return !in_array($value, self::RESERVED_ROLE_NAMES);
     }
 
     /**

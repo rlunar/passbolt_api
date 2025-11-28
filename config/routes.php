@@ -216,6 +216,9 @@ $routes->scope('/roles', function ($routes) {
 
     $routes->connect('/', ['prefix' => 'Roles', 'controller' => 'RolesIndex', 'action' => 'index'])
         ->setMethods(['GET']);
+
+    $routes->connect('/', ['prefix' => 'Roles', 'controller' => 'RolesAdd', 'action' => 'add'])
+        ->setMethods(['POST']);
 });
 
 /**
