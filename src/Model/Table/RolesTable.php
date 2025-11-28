@@ -18,6 +18,9 @@ namespace App\Model\Table;
 
 use App\Model\Entity\Role;
 use App\Model\Rule\Role\MaximumNumberOfRolesAllowedRule;
+use Cake\Database\Expression\IdentifierExpression;
+use Cake\Database\Expression\QueryExpression;
+use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
@@ -168,5 +171,55 @@ class RolesTable extends Table
         }
 
         return $role->get('id');
+    }
+
+    /**
+     * @param \Cake\ORM\Query $query The Query.
+     * @param array $options Array of options.
+     * @return \Cake\ORM\Query
+     */
+    public function findIndex(Query $query, array $options): Query
+    {
+        /**
+         * Filter
+         */
+        if (!empty($options['filter']['is-deleted'])) {
+            $query = $query->where(function (QueryExpression $exp) {
+                return $exp->isNotNull($this->aliasField('deleted'));
+            });
+        } else {
+            $query = $query->find('notDeleted');
+        }
+
+        /**
+         * Contain
+         */
+        if (!empty($options['contain']['user_count'])) {
+            // Count the members of the groups in a subquery.
+            $subQuery = $this->getAssociation('Users')->find();
+            $subQuery
+                ->select(['count' => $subQuery->func()->count('*')])
+                ->where([
+                    'Users.role_id' => new IdentifierExpression('Roles.id'),
+                    // Only return active users count
+                    'Users.deleted' => false,
+                ]);
+
+            // Add the user_count field to the Groups query.
+            $query = $query->select(['user_count' => $subQuery])->enableAutoFields();
+        }
+
+        return $query;
+    }
+
+    /**
+     * @param \Cake\ORM\Query $query query
+     * @return \Cake\ORM\Query
+     */
+    public function findNotDeleted(Query $query): Query
+    {
+        return $query->where(function (QueryExpression $exp) {
+            return $exp->isNull($this->aliasField('deleted'));
+        });
     }
 }
