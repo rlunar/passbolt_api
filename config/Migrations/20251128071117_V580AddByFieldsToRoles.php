@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 use Migrations\AbstractMigration;
 
-class V580AddDeletedToRoles extends AbstractMigration
+class V580AddByFieldsToRoles extends AbstractMigration
 {
     /**
      * Change Method.
@@ -30,11 +30,26 @@ class V580AddDeletedToRoles extends AbstractMigration
     {
         $this
             ->table('roles')
-            ->addColumn('deleted', 'datetime', [
+            ->addColumn('created_by', 'uuid', [
                 'default' => null,
-                'limit' => null,
                 'null' => true,
-                'after' => 'description',
+                'encoding' => 'ascii',
+                'collation' => 'ascii_general_ci', // required for FK, needs to be same as reference table (i.e. users)
+                'after' => 'deleted',
+            ])
+            ->addColumn('modified_by', 'uuid', [
+                'default' => null,
+                'null' => true,
+                'encoding' => 'ascii',
+                'collation' => 'ascii_general_ci', // required for FK, needs to be same as reference table (i.e. users)
+                'after' => 'created_by',
+            ])
+            ->addColumn('deleted_by', 'uuid', [
+                'default' => null,
+                'null' => true,
+                'encoding' => 'ascii',
+                'collation' => 'ascii_general_ci', // required for FK, needs to be same as reference table (i.e. users)
+                'after' => 'modified_by',
             ])
             ->save();
     }
