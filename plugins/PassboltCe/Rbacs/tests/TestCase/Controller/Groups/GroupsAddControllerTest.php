@@ -53,7 +53,7 @@ class GroupsAddControllerTest extends RbacsIntegrationTestCase
     public function testGroupsAddController_Success_As_User_With_Rbac_Control(): void
     {
         [$user, $userToAdd] = UserFactory::make(2)->persist();
-        $action = ActionFactory::make()->setActionNameAndId('GroupsAdd.addPost')->persist();
+        $action = ActionFactory::make()->name('GroupsAdd.addPost')->persist();
         RbacFactory::make()
             ->setAction($action)
             ->setField('role_id', $user->role_id)
@@ -77,7 +77,7 @@ class GroupsAddControllerTest extends RbacsIntegrationTestCase
     {
         $this->disableFeaturePlugin(RbacsPlugin::class);
         [$user, $userToAdd] = UserFactory::make(2)->persist();
-        $action = ActionFactory::make()->setActionNameAndId('GroupsAdd.addPost')->persist();
+        $action = ActionFactory::make()->name('GroupsAdd.addPost')->persist();
         RbacFactory::make()
             ->setAction($action)
             ->setField('role_id', $user->role_id)
@@ -96,7 +96,7 @@ class GroupsAddControllerTest extends RbacsIntegrationTestCase
     public function testGroupsAddController_User_With_No_Rbac(): void
     {
         [$user, $userToAdd] = UserFactory::make(2)->persist();
-        $action = ActionFactory::make()->setActionNameAndId('GroupsAdd.addPost')->persist();
+        $action = ActionFactory::make()->name('GroupsAdd.addPost')->persist();
         RbacFactory::make()
             ->setAction($action)
             ->setField('role_id', $user->role_id)
