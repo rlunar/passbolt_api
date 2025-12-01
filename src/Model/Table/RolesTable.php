@@ -25,7 +25,6 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
-use InvalidArgumentException;
 use Passbolt\Rbacs\Model\Rule\HasNoActiveUserAssociatedRule;
 
 /**
@@ -50,7 +49,7 @@ use Passbolt\Rbacs\Model\Rule\HasNoActiveUserAssociatedRule;
  */
 class RolesTable extends Table
 {
-    public const ALLOWED_ROLE_NAMES = [Role::GUEST, Role::USER, Role::ADMIN];
+    public const DEFAULT_ROLE_NAMES = [Role::GUEST, Role::USER, Role::ADMIN];
 
     public const RESERVED_ROLE_NAMES = [Role::GUEST, Role::USER, Role::ADMIN, 'root'];
 
@@ -150,17 +149,6 @@ class RolesTable extends Table
     }
 
     /**
-     * Check if a role name is valid
-     *
-     * @param string $roleName for example 'admin' or 'user'
-     * @return bool true if whitelisted
-     */
-    public function isValidRoleName(string $roleName): bool
-    {
-        return in_array($roleName, self::ALLOWED_ROLE_NAMES);
-    }
-
-    /**
      * Get a role id by providing its name
      *
      * @param string $roleName such as "admin" or "user"
@@ -169,10 +157,6 @@ class RolesTable extends Table
      */
     public function getIdByName(string $roleName): ?string
     {
-        if (!$this->isValidRoleName($roleName)) {
-            $msg = __('The role name should be from the list of allowed role names.');
-            throw new InvalidArgumentException($msg);
-        }
         $role = $this->find('all')
             ->where(['name' => $roleName])
             ->first();

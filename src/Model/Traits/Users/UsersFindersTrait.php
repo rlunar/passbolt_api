@@ -240,11 +240,6 @@ trait UsersFindersTrait
 
         $query = $event->getQuery();
 
-        // Options must contain a role
-        if (!$this->Roles->isValidRoleName($role)) {
-            throw new InvalidArgumentException('The role name is not valid.');
-        }
-
         // Default associated data
         $containDefault = [
             'gpgkey' => true, 'profile' => true, 'groups_users' => true, 'role' => true,
@@ -330,9 +325,6 @@ trait UsersFindersTrait
         if (!Validation::uuid($userId)) {
             throw new InvalidArgumentException('The user identifier should be a valid UUID.');
         }
-        if (!$this->Roles->isValidRoleName($roleName)) {
-            throw new InvalidArgumentException('The role name is not valid.');
-        }
 
         // Same rule than index apply with a specific id requested
         return $this->findIndex($roleName)->where(['Users.id' => $userId]);
@@ -350,9 +342,6 @@ trait UsersFindersTrait
     {
         if (!Validation::uuid($userId)) {
             throw new InvalidArgumentException('The user identifier should be a valid UUID.');
-        }
-        if (!$this->Roles->isValidRoleName($roleName)) {
-            throw new InvalidArgumentException('The role name is not valid.');
         }
 
         return $this->findIndex($roleName)->where(['Users.id' => $userId]);
