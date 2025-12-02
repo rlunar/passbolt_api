@@ -81,7 +81,7 @@ class CreateRbacsOnRoleCreateListenerTest extends AppTestCaseV5
             ->persist();
         RbacFactory::make(['role_id' => $userRoleId])
             ->user()
-            ->setAction(ActionFactory::make()->name(RbacsControlledActionsInsertService::NAME_ACCOUNT_RECOVERY_REQUESTS_INDEX)->persist())
+            ->setAction(ActionFactory::make()->name(RbacsControlledActionsInsertService::NAME_ACCOUNT_RECOVERY_REQUESTS_VIEW)->persist())
             ->persist();
         // for admin
         $adminRoleId = RoleFactory::find()->where(['name' => Role::ADMIN])->firstOrFail()->get('id');
