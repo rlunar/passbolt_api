@@ -19,6 +19,7 @@ namespace Passbolt\SecretRevisions\Service\Secrets;
 use App\Model\Table\ResourcesTable;
 use App\Model\Table\SecretsTable;
 use Cake\Database\Expression\IdentifierExpression;
+use Cake\Datasource\ConnectionManager;
 use Cake\I18n\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Text;
@@ -123,13 +124,14 @@ class PopulateSecretRevisionsForExistingSecretsService
                 $this->ResourcesTable->find()->newExpr()->isNull('SecretRevisions.resource_id'),
             ]);
 
-        // Process in batches to limit memory consumption
+        /** @var \Cake\Database\Connection $connection */
+        $connection = ConnectionManager::get('default');
         $totalRowsAdded = 0;
-        $batch = [];
+        $batchCount = 0;
 
-        // Use cursor-based iteration - fetches rows one at a time from database
+        $connection->begin();
         foreach ($resourcesSelectQuery as $resource) {
-            $batch[] = [
+            $connection->insert('secret_revisions', [
                 'id' => Text::uuid(),
                 'resource_id' => $resource['id'],
                 'resource_type_id' => $resource['resource_type_id'],
@@ -137,38 +139,23 @@ class PopulateSecretRevisionsForExistingSecretsService
                 'modified' => DateTime::now()->format('Y-m-d H:i:s'),
                 'created_by' => $resource['created_by'],
                 'modified_by' => $resource['modified_by'],
-            ];
+            ]);
 
-            if (count($batch) >= $this->batchSize) {
-                $totalRowsAdded += $this->insertBatch($batch);
-                $batch = [];
+            $totalRowsAdded++;
+            $batchCount++;
+
+            // Commit and restart transaction every "batchSize" no. of rows
+            if ($batchCount >= $this->batchSize) {
+                $connection->commit();
+                $connection->begin();
+                $batchCount = 0;
+                // reset limit
+                set_time_limit(30);
             }
         }
-
-        // Insert remaining records
-        if (!empty($batch)) {
-            $totalRowsAdded += $this->insertBatch($batch);
-        }
+        $connection->commit();
 
         return $totalRowsAdded;
-    }
-
-    /**
-     * Insert a batch of secret revisions.
-     *
-     * @param array $batch Array of secret revision data to insert.
-     * @return int Number of rows inserted.
-     */
-    private function insertBatch(array $batch): int
-    {
-        $insertQuery = $this->SecretRevisions->insertQuery()
-            ->insert(['id', 'resource_id', 'resource_type_id', 'created', 'modified', 'created_by', 'modified_by']);
-
-        foreach ($batch as $row) {
-            $insertQuery->values($row);
-        }
-
-        return $insertQuery->execute()->rowCount();
     }
 
     /**
