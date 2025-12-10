@@ -67,7 +67,7 @@ class FoldersUpdateController extends AppController
             ],
         ];
         $options = $this->QueryString->get($whitelist);
-        $folder = $foldersUpdateService->foldersTable->findView($this->User->id(), $folder->id, $options)->first();
+        $folder = $foldersUpdateService->foldersTable->findView($this->User->id(), $folder->id, $options)->firstOrFail();
         $folder = FolderizableBehavior::unsetPersonalPropertyIfNull($folder->toArray());
         $folder = (new MetadataFoldersRenderService())->renderFolder($folder, $folderDto->isV5());
 
