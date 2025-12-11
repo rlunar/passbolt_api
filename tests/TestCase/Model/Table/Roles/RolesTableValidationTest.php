@@ -22,6 +22,7 @@ use Cake\TestSuite\TestCase;
 
 /**
  * @covers \App\Model\Table\RolesTable::validationDefault
+ * @covers \App\Model\Table\RolesTable::beforeMarshal
  */
 class RolesTableValidationTest extends TestCase
 {
@@ -60,7 +61,7 @@ class RolesTableValidationTest extends TestCase
      */
     public function testRolesTableValidation_Name_Success(string $name): void
     {
-        $role = $this->Roles->newEntity(['name' => $name]);
+        $role = $this->Roles->newEntity(['name' => $name], ['accessibleFields' => ['name' => true]]);
         $this->assertEmpty($role->getErrors());
     }
 
@@ -81,14 +82,28 @@ class RolesTableValidationTest extends TestCase
      */
     public function testRolesTableValidation_Name_Error(string $name): void
     {
-        $role = $this->Roles->newEntity(['name' => $name]);
+        $role = $this->Roles->newEntity(['name' => $name], ['accessibleFields' => ['name' => true]]);
         $this->assertNotEmpty($role->getErrors());
         $this->assertArrayHasKey('name', $role->getErrors());
     }
 
     public function testRolesTableValidation_Name_MaxLength(): void
     {
-        $role = $this->Roles->newEntity(['name' => str_repeat('a', 51)]);
+        $role = $this->Roles->newEntity(['name' => str_repeat('a', 51)], ['accessibleFields' => ['name' => true]]);
+        $this->assertNotEmpty($role->getErrors());
+        $this->assertArrayHasKey('name', $role->getErrors());
+    }
+
+    public function testRolesTableValidation_Name_TrimWhitespace(): void
+    {
+        $role = $this->Roles->newEntity(['name' => '  sales  '], ['accessibleFields' => ['name' => true]]);
+        $this->assertEmpty($role->getErrors());
+        $this->assertSame('sales', $role->get('name'));
+    }
+
+    public function testRolesTableValidation_Name_TrimWhitespace_OnlyWhitespace(): void
+    {
+        $role = $this->Roles->newEntity(['name' => '   '], ['accessibleFields' => ['name' => true]]);
         $this->assertNotEmpty($role->getErrors());
         $this->assertArrayHasKey('name', $role->getErrors());
     }
