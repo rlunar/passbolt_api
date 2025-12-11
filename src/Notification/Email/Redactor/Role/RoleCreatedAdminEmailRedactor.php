@@ -131,7 +131,6 @@ class RoleCreatedAdminEmailRedactor implements SubscribedEmailRedactorInterface
                     'role' => $role,
                     'operator' => $operator,
                 ],
-                'title' => $subject,
             ],
             self::TEMPLATE
         );
