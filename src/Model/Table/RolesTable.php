@@ -93,7 +93,7 @@ class RolesTable extends Table
             ->allowEmptyString('id', 'create');
 
         $validator
-            ->ascii('name', __('The name should be a valid ASCII string.'))
+            ->utf8('name', __('The name should be a valid BMP-UTF8 string.'))
             ->requirePresence('name', 'create')
             ->notEmptyString('name')
             ->maxLength('name', 50, __('The name should not be greater than 50 characters.'))
